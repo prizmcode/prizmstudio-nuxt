@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-ink: #1c1b1a;
+  --color-paper: #faf8f5;
+  --color-accent: #6b4fbb;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+}
