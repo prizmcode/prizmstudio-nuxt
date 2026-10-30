@@ -1,0 +1,3 @@
+# Hostinger settings for the static Nuxt build.
+DirectoryIndex index.html
+ErrorDocument 404 /404.html

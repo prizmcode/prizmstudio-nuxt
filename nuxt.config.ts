@@ -1,8 +1,9 @@
 import tailwindcss from '@tailwindcss/vite';
 
-// WordPress (headless) provides pages, posts and menus over WPGraphQL.
-// The store lives on liliesofthefield.co, so no WooCommerce code here.
+// WordPress (headless) provides the About page over WPGraphQL and sends contact
+// form email (prizm-contact mu-plugin). The store lives on liliesofthefield.co.
 const GQL_HOST = process.env.GQL_HOST || 'https://prizmstudio.com/graphql';
+const WP_ORIGIN = new URL(GQL_HOST).origin;
 const WP_HOSTNAME = new URL(GQL_HOST).hostname;
 
 export default defineNuxtConfig({
@@ -24,7 +25,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      wpHostname: WP_HOSTNAME,
+      wpOrigin: WP_ORIGIN,
       'graphql-client': {
         clients: {
           default: { host: GQL_HOST },
@@ -37,8 +38,11 @@ export default defineNuxtConfig({
     domains: [WP_HOSTNAME],
   },
 
-  // Serve cached pages from the CDN and refresh them from WordPress in the background.
-  routeRules: {
-    '/**': { isr: 3600 },
+  // Built as static files (`npm run generate`) and uploaded to Hostinger.
+  nitro: {
+    prerender: {
+      crawlLinks: true,
+      routes: ['/'],
+    },
   },
 });

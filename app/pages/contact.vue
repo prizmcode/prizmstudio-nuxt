@@ -1,22 +1,20 @@
 <script setup lang="ts">
 useHead({ title: 'Contact' });
 
+const { wpOrigin } = useRuntimeConfig().public;
+
 const form = reactive({ name: '', email: '', message: '', company: '' });
 const status = ref<'idle' | 'sending' | 'sent' | 'error'>('idle');
+const errorMessage = ref('');
 
-// Submissions go to Netlify Forms (defined in public/__forms.html).
+// Submissions go to WordPress (prizm-contact mu-plugin), which emails them through WP Mail SMTP.
 async function submit() {
   status.value = 'sending';
   try {
-    const body = new URLSearchParams({ 'form-name': 'contact', ...form });
-    const res = await fetch('/__forms.html', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await $fetch(`${wpOrigin}/wp-json/prizm/v1/contact`, { method: 'POST', body: form });
     status.value = 'sent';
-  } catch {
+  } catch (err: any) {
+    errorMessage.value = err?.data?.message || 'Something went wrong. Please try again.';
     status.value = 'error';
   }
 }
@@ -50,7 +48,7 @@ async function submit() {
       <button type="submit" :disabled="status === 'sending'" class="rounded-sm bg-ink px-6 py-3 text-sm text-paper hover:bg-accent disabled:opacity-50">
         {{ status === 'sending' ? 'Sending…' : 'Send message' }}
       </button>
-      <p v-if="status === 'error'" class="text-sm text-red-700">Something went wrong. Please try again.</p>
+      <p v-if="status === 'error'" class="text-sm text-red-700">{{ errorMessage }}</p>
     </form>
   </div>
 </template>

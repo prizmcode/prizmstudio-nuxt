@@ -1,0 +1,54 @@
+# Builds the static site and uploads it to Hostinger over FTP.
+#
+# Setup (GitHub repo → Settings → Secrets and variables → Actions):
+#   Secrets:   FTP_SERVER, FTP_USERNAME, FTP_PASSWORD   (from Hostinger hPanel → Files → FTP Accounts)
+#   Variables: FTP_SERVER_DIR   folder to upload into, ending in "/" (e.g. "public_html/")
+#              GQL_HOST         WordPress GraphQL URL (defaults to https://prizmstudio.com/graphql)
+#              DEPLOY_ON_PUSH   set to "true" to deploy on every push to main
+#
+# Until DEPLOY_ON_PUSH is "true", deploys only run when started by hand from the
+# Actions tab. That keeps a push from overwriting the live WordPress site at
+# prizmstudio.com before WordPress has moved to cms.prizmstudio.com.
+
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || vars.DEPLOY_ON_PUSH == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy settings
+        if: vars.FTP_SERVER_DIR == ''
+        run: |
+          echo "Set the FTP_SERVER_DIR repository variable (e.g. public_html/) before deploying."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run generate
+        env:
+          GQL_HOST: ${{ vars.GQL_HOST || 'https://prizmstudio.com/graphql' }}
+
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: .output/public/
+          server-dir: ${{ vars.FTP_SERVER_DIR }}
