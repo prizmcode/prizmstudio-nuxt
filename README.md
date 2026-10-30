@@ -1,6 +1,6 @@
 # Prizm Studio (Nuxt)
 
-The prizmstudio.com site: Nuxt 4 on the front end, with WordPress used headless for pages, posts and menus through WPGraphQL. This site has no store. The WooCommerce shop lives on liliesofthefield.co.
+The prizmstudio.com site: Nuxt 4 on the front end, with WordPress used headless (through WPGraphQL) for the About page content. This site has no store. The WooCommerce shop lives on liliesofthefield.co.
 
 ## Setup
 
@@ -12,12 +12,12 @@ npm run dev
 
 `GQL_HOST` points at the WordPress GraphQL endpoint. It is `https://prizmstudio.com/graphql` for now and changes to `https://cms.prizmstudio.com/graphql` when WordPress moves to the subdomain at launch.
 
-## How content is routed
+## Where content lives
 
-- `/` shows the home page, with the site title and tagline from WordPress plus the latest posts.
-- `/blog` lists posts.
-- Every other path is looked up in WordPress with `nodeByUri`, so existing page and post URLs keep working.
-- Store pages (shop, cart, checkout, account) return 404. See `app/utils/wp.ts`.
+- **Portfolio:** `app/data/projects.ts`. Add an entry there and put its images in `public/images/work/`.
+- **About:** the "About Prizm Studio" page in WordPress, fetched with `app/queries/getPage.gql`.
+- **Home and contact copy:** directly in `app/pages/`.
+- **Contact form:** Netlify Forms. The form is defined in `public/__forms.html`, and submissions show up under Forms in the Netlify dashboard, where you can turn on email notifications.
 
 ## Deploying
 

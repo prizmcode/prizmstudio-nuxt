@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <body>
+    <!-- Netlify detects this form at deploy time; the contact page posts to it. -->
+    <form name="contact" netlify netlify-honeypot="company" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+      <input type="text" name="company" />
+    </form>
+  </body>
+</html>

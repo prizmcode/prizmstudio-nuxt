@@ -1,6 +1,0 @@
-query getSiteSettings {
-  generalSettings {
-    title
-    description
-  }
-}
